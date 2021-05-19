@@ -9,7 +9,7 @@
         "lock",
         "util"
     ],
-    "description": "",
+    "description": "HyperfGlory Util",
     "autoload": {
         "psr-4": {
             "HyperfGlory\\Util\\": "src/"
