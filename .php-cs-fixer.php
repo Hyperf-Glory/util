@@ -3,7 +3,7 @@
 $header = <<<'EOF'
 This file is part of HyperfGlory.
 
-@license  https://github.com/HyperfGlory//util/master/LICENSE
+@license  https://github.com/HyperfGlory/util/master/LICENSE
 EOF;
 
 return (new PhpCsFixer\Config())
@@ -80,7 +80,7 @@ return (new PhpCsFixer\Config())
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
-            ->exclude('vendor')
-            ->in(__DIR__)
+                         ->exclude('vendor')
+                         ->in(__DIR__)
     )
     ->setUsingCache(false);
