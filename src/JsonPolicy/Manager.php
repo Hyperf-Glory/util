@@ -11,10 +11,10 @@ namespace HyperfGlory\Util\JsonPolicy;
 
 use HyperfGlory\Util\JsonPolicy\Core\Context,
     HyperfGlory\Util\JsonPolicy\Parser\PolicyParser,
-    HyperfGlory\Util\JsonPolicy\Manager\MarkerManager,
+    HyperfGlory\Util\JsonPolicy\MarkerManager,
     HyperfGlory\Util\JsonPolicy\Parser\ExpressionParser,
-    HyperfGlory\Util\JsonPolicy\Manager\TypecastManager,
-    HyperfGlory\Util\JsonPolicy\Manager\ConditionManager;
+    HyperfGlory\Util\JsonPolicy\TypecastManager,
+    HyperfGlory\Util\JsonPolicy\ConditionManager;
 
 /**
  * Main policy manager
@@ -29,50 +29,50 @@ class Manager
      *
      * @var array
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private $_effects = array(
+    private $_effects = [
         'allowed' => 'allow',
         'denied'  => 'deny',
-    );
+    ];
 
     /**
      * Policy manager settings
      *
      * @var array
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private $_settings = [];
+    private $_settings;
 
     /**
      * Marker manager
      *
-     * @var JsonPolicy\Manager\MarkerManager
+     * @var MarkerManager
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private $_marker_manager = null;
+    private $_marker_manager;
 
     /**
      * Typecast manager
      *
-     * @var JsonPolicy\Manager\TypecastManager
+     * @var TypecastManager
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private $_typecast_manager = null;
+    private $_typecast_manager;
 
     /**
      * Condition manager
      *
-     * @var JsonPolicy\Manager\ConditionManager
+     * @var ConditionManager
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
     private $_condition_manager = null;
@@ -82,7 +82,7 @@ class Manager
      *
      * @var array
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
     private $_tree = [];
@@ -96,7 +96,7 @@ class Manager
      *
      * @return void
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
     protected function __construct(array $settings)
@@ -115,10 +115,10 @@ class Manager
      *
      * @return boolean|null
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function __call($name, $args)
+    public function __call(string $name, array $args)
     {
         $result = null;
 
@@ -162,7 +162,7 @@ class Manager
      *
      * @return array
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
     public function getSetting($name, $as_iterable = true)
@@ -171,8 +171,10 @@ class Manager
 
         if ($as_iterable) {
             $setting = $this->_getSettingIterator($name);
-        } else if (isset($this->_settings[$name])) {
-            $setting = $this->_settings[$name];
+        } else {
+            if (isset($this->_settings[$name])) {
+                $setting = $this->_settings[$name];
+            }
         }
 
         return $setting;
@@ -187,10 +189,10 @@ class Manager
      *
      * @return mixed
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function getParam($key, $default = null, $args = [])
+    public function getParam(string $key, $default = null, $args = [])
     {
         $result = $default;
 
@@ -213,12 +215,12 @@ class Manager
     /**
      * Get marker manager
      *
-     * @return JsonPolicy\Manager\MarkerManager
+     * @return MarkerManager
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function getMarkerManager()
+    public function getMarkerManager() : MarkerManager
     {
         if (is_null($this->_marker_manager)) {
             $this->_marker_manager = new MarkerManager(
@@ -232,12 +234,12 @@ class Manager
     /**
      * Get typecast manager
      *
-     * @return JsonPolicy\Manager\TypecastManager
+     * @return TypecastManager
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function getTypecastManager()
+    public function getTypecastManager() : TypecastManager
     {
         if (is_null($this->_typecast_manager)) {
             $this->_typecast_manager = new TypecastManager(
@@ -251,12 +253,12 @@ class Manager
     /**
      * Get condition manager
      *
-     * @return JsonPolicy\Manager\ConditionManager
+     * @return ConditionManager
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function getConditionManager()
+    public function getConditionManager() : ConditionManager
     {
         if (is_null($this->_condition_manager)) {
             $this->_condition_manager = new ConditionManager(
@@ -270,12 +272,14 @@ class Manager
     /**
      * Get context
      *
+     * @param array $properties
+     *
      * @return Context
      *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
-    public function getContext(array $properties = [])
+    public function getContext(array $properties = []) : Context
     {
         // If no args provided explicitly, then fallback to the default context
         // that can be defined during Policy Manager initialization
@@ -284,7 +288,7 @@ class Manager
         }
 
         return new Context(array_merge(
-            [ 'manager' => $this ],
+            ['manager' => $this],
             $this->getSetting('context'),
             $properties
         ));
@@ -296,16 +300,16 @@ class Manager
      * @param mixed     $resource Resource name or resource object
      * @param string    $effect   Constraint effect (e.g. allow, deny)
      * @param string    $action   Any specific action upon provided resource
-     * @param bool|null $default  Default response
+     * @param null|bool $default  Default response
      * @param mixed     $args     Inline arguments that are added to the context
      *
      * @return boolean|null The `null` is returned if there is no applicable statements
      *                      that explicitly define effect
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
-    protected function is($resource, $effect, $action, $default, $args)
+    protected function is($resource, string $effect, string $action, ?bool $default, $args) : ?bool
     {
         $result = $default;
 
@@ -320,7 +324,7 @@ class Manager
 
         $res_id   = $res_name . (is_null($action) ? '' : "::{$action}");
         $wildcard = "{$res_name}::*";
-
+        $stm      = null;
         if ($this->_tree['Statement'][$res_id]) {
             $stm = $this->getBestCandidate(
                 $this->_tree['Statement'][$res_id], $context
@@ -347,10 +351,10 @@ class Manager
      *
      * @return void
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
-    protected function initialize()
+    protected function initialize() : void
     {
         // If there are any additional stemming pairs, merge them with the default
         $this->_effects = array_merge(
@@ -373,10 +377,10 @@ class Manager
      *
      * @return array|null
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
-    protected function getBestCandidate($match, Context $context)
+    protected function getBestCandidate($match, Context $context) : ?array
     {
         $candidate = null;
 
@@ -385,7 +389,7 @@ class Manager
             // and select either the last one or the one that is enforced
             $enforced = false;
 
-            foreach($match as $stm) {
+            foreach ($match as $stm) {
                 if ($this->_isApplicable($stm, $context)) {
                     if (!empty($stm['Enforce'])) {
                         $candidate = $stm;
@@ -395,8 +399,10 @@ class Manager
                     }
                 }
             }
-        } else if ($this->_isApplicable($match, $context)) {
-            $candidate = $match;
+        } else {
+            if ($this->_isApplicable($match, $context)) {
+                $candidate = $match;
+            }
         }
 
         return $candidate;
@@ -409,15 +415,15 @@ class Manager
      *
      * @return string|null
      *
-     * @access protected
+     * @access  protected
      * @version 0.0.1
      */
     protected function getResourceName($resource)
     {
         $name = null;
 
-        foreach($this->getSetting('custom_resources') as $callback) {
-            $name = call_user_func($callback, $name, $resource, $this);
+        foreach ($this->getSetting('custom_resources') as $callback) {
+            $name = $callback($name, $resource, $this);
         }
 
         if (is_null($name)) {
@@ -439,10 +445,10 @@ class Manager
      *
      * @return boolean
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private function _isApplicable($obj, Context $context)
+    private function _isApplicable(array $obj, Context $context) : bool
     {
         $result = true;
 
@@ -453,16 +459,16 @@ class Manager
                 if ($i !== 'Operator') {
                     foreach ($group as $j => &$row) {
                         if ($j !== 'Operator') {
-                            $row = array(
+                            $row = [
                                 // Left expression
-                                'left' => ExpressionParser::convertToValue(
+                                'left'  => ExpressionParser::convertToValue(
                                     $row['left'], $context
                                 ),
                                 // Right expression
                                 'right' => (array)ExpressionParser::convertToValue(
                                     $row['right'], $context
                                 )
-                            );
+                            ];
                         }
                     }
                 }
@@ -486,24 +492,24 @@ class Manager
      *
      * @return array|Traversable
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private function _getSettingIterator($name)
+    private function _getSettingIterator(string $name)
     {
         $iterator = null;
 
         if (isset($this->_settings[$name])) {
             $setting = $this->_settings[$name];
 
-            if (is_a($setting, 'Closure')) {
-                $iterator = call_user_func($setting, $this);
+            if ($setting instanceof \Closure) {
+                $iterator = $setting($this);
             } else {
                 $iterator = $setting;
             }
         }
 
-        if (is_null($iterator) || !is_iterable($iterator)) {
+        if (!is_iterable($iterator)) {
             $iterator = [];
         }
 
@@ -520,14 +526,14 @@ class Manager
      *
      * @return string
      *
-     * @access private
+     * @access  private
      * @version 0.0.1
      */
-    private function _stemEffect($effect)
+    private function _stemEffect($effect) : string
     {
         $n = strtolower($effect);
 
-        return (isset($this->_effects[$n]) ? $this->_effects[$n] : $n);
+        return ($this->_effects[$n] ?? $n);
     }
 
     /**
@@ -535,13 +541,13 @@ class Manager
      *
      * @param array $options Manager options
      *
-     * @return JsonPolicy\Manager
+     * @return \HyperfGlory\Util\JsonPolicy\Manager
      *
-     * @access public
+     * @access  public
      * @static
      * @version 0.0.1
      */
-    public static function bootstrap(array $options = []): Manager
+    public static function bootstrap(array $options = []) : Manager
     {
         $instance = new self($options);
 

@@ -53,7 +53,7 @@ class Context
      * @access public
      * @version 0.0.1
      */
-    public function getMarkerValue($source, $xpath)
+    public function getMarkerValue(string $source, string $xpath)
     {
         return $this->manager->getMarkerManager()->getValue($source, $xpath, $this);
     }
@@ -69,7 +69,7 @@ class Context
      * @access public
      * @version 0.0.1
      */
-    public function castValue($value, $type)
+    public function castValue($value, string $type)
     {
         return $this->manager->getTypecastManager()->cast($value, $type);
     }

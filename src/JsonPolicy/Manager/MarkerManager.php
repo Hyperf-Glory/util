@@ -64,7 +64,7 @@ class MarkerManager
      * @access public
      * @version 0.0.1
      */
-    public function getValue($source, $xpath, Context $context)
+    public function getValue(string $source, string $xpath, Context $context)
     {
         if (isset($this->_map[$source])) {
             $value = call_user_func($this->_map[$source], $xpath, $context);
@@ -86,7 +86,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.1
      */
-    protected static function getContextArgValue($prop, Context $context)
+    protected static function getContextArgValue(string $prop, Context $context)
     {
         return self::getValueByXPath($context, 'args.' . $prop);
     }
@@ -101,7 +101,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.1
      */
-    protected static function getDatetime($format)
+    protected static function getDatetime(string $format) : string
     {
         return (new \DateTime('now', new \DateTimeZone('UTC')))->format($format);
     }
@@ -116,7 +116,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.1
      */
-    protected static function getEnvVar($prop)
+    protected static function getEnvVar(string $prop)
     {
         return getenv($prop);
     }
@@ -131,7 +131,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.2
      */
-    protected static function getHttpCookie($prop)
+    protected static function getHttpCookie(string $prop)
     {
         return self::getValueByXPath($_COOKIE, $prop);
     }
@@ -146,7 +146,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.2
      */
-    protected static function getHttpGet($prop)
+    protected static function getHttpGet(string $prop)
     {
         return self::getValueByXPath($_GET, $prop);
     }
@@ -161,7 +161,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.2
      */
-    protected static function getHttpPost($prop)
+    protected static function getHttpPost(string $prop)
     {
         return self::getValueByXPath($_POST, $prop);
     }
@@ -176,7 +176,7 @@ class MarkerManager
      * @access protected
      * @version 0.0.2
      */
-    protected static function getHttpRequest($prop)
+    protected static function getHttpRequest(string $prop)
     {
         return self::getValueByXPath($_REQUEST, $prop);
     }
@@ -194,7 +194,7 @@ class MarkerManager
      * @access public
      * @version 0.0.1
      */
-    public static function getValueByXPath($obj, $xpath)
+    public static function getValueByXPath($obj, string $xpath)
     {
         $value = $obj;
         $path  = trim(

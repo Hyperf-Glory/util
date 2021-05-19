@@ -80,7 +80,7 @@ class Entity
      * @access public
      * @version 0.0.1
      */
-    public function __construct($raw, array $parsed_expression)
+    public function __construct(string $raw, array $parsed_expression)
     {
         $this->raw = $raw;
 
@@ -143,7 +143,7 @@ class Entity
      * @access public
      * @version 0.0.1
      */
-    public function toArray()
+    public function toArray() : array
     {
         $response = [];
 

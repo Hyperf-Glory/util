@@ -44,12 +44,9 @@ class ConditionManager
     /**
      * Construct the condition parser
      *
-     * @param Parser $parser Parent policy parser
-     * @param array  $map    Collection of additional conditions
+     * @param array $map Collection of additional conditions
      *
-     * @return void
-     *
-     * @access public
+     * @access  public
      * @version 0.0.1
      */
     public function __construct(array $map = [])
@@ -67,7 +64,7 @@ class ConditionManager
      * @access public
      * @version 0.0.1
      */
-    public function evaluate($conditions)
+    public function evaluate(array $conditions) : ?bool
     {
         $result   = null;
         $operator = $this->_determineConditionOperator($conditions);
@@ -84,11 +81,9 @@ class ConditionManager
                 $group_operator = $this->_determineConditionOperator($group);
 
                 // Evaluating group
-                $group_res = call_user_func(
-                    $callback, $group, $group_operator, $this
-                );
+                $group_res = $callback($group, $group_operator, $this);
 
-                $result = $this->compute($result, $group_res, $operator);
+                $result = self::compute($result, $group_res, $operator);
             } else {
                 $result = false;
             }
@@ -109,7 +104,7 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateBetweenConditions(
-        $conditions, $operator = 'AND'
+        array $conditions, string $operator = 'AND'
     ) {
         $result = null;
 
@@ -128,12 +123,12 @@ class ConditionManager
                 $min = (is_array($subset) ? array_shift($subset) : $subset);
                 $max = (is_array($subset) ? end($subset) : $subset);
 
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] >= $min && $cnd['left'] <= $max), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -153,20 +148,20 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateEqualsConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
             $sub_result = null;
 
             foreach($cnd['right'] as $value) {
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] === $value), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -184,8 +179,8 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateNotEqualsConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : bool {
         return !$this->evaluateEqualsConditions($conditions, $operator);
     }
 
@@ -201,20 +196,20 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateGreaterConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
             $sub_result = null;
 
             foreach($cnd['right'] as $value) {
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] > $value), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -232,20 +227,20 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateLessConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
             $sub_result = null;
 
             foreach($cnd['right'] as $value) {
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] < $value), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -263,20 +258,20 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateGreaterOrEqualsConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
             $sub_result = null;
 
             foreach($cnd['right'] as $value) {
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] >= $value), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -294,20 +289,20 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateLessOrEqualsConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
             $sub_result = null;
 
             foreach($cnd['right'] as $value) {
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, ($cnd['left'] <= $value), 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -325,12 +320,12 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateInConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
-            $result = $this->compute(
+            $result = self::compute(
                 $result, in_array($cnd['left'], $cnd['right'], true), $operator
             );
         }
@@ -350,12 +345,12 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateNotInConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
-            $result = $this->compute(
+            $result = self::compute(
                 $result, !in_array($cnd['left'], $cnd['right'], true), $operator
             );
         }
@@ -375,8 +370,8 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateLikeConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
@@ -394,7 +389,7 @@ class ConditionManager
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -412,8 +407,8 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateNotLikeConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
@@ -424,14 +419,14 @@ class ConditionManager
                     array('\*', '\#'), array('.*', '\\#'), preg_quote($value)
                 );
 
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result,
                     preg_match('#^' . $sub . '$#ms', $cnd['left']) !== 1,
                     'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -449,8 +444,8 @@ class ConditionManager
      * @version 0.0.1
      */
     protected function evaluateRegexConditions(
-        $conditions, $operator = 'AND'
-    ) {
+        array $conditions, string $operator = 'AND'
+    ) : ?bool {
         $result = null;
 
         foreach ($conditions as $cnd) {
@@ -463,12 +458,12 @@ class ConditionManager
                     $regex = "/{$regex}/";
                 }
 
-                $sub_result = $this->compute(
+                $sub_result = self::compute(
                     $sub_result, preg_match($regex, $cnd['left']) === 1, 'OR'
                 );
             }
 
-            $result = $this->compute($result, $sub_result, $operator);
+            $result = self::compute($result, $sub_result, $operator);
         }
 
         return $result;
@@ -487,7 +482,7 @@ class ConditionManager
      * @access private
      * @version 0.0.1
      */
-    private function _determineConditionOperator(array &$conditions)
+    private function _determineConditionOperator(array &$conditions) : string
     {
         $op = 'AND';
 
@@ -514,7 +509,7 @@ class ConditionManager
      * @access public
      * @version 0.0.1
      */
-    public static function compute($left, $right, $operator)
+    public static function compute(bool $left, bool $right, string $operator) : ?bool
     {
         $result = null;
 

@@ -53,7 +53,7 @@ class TypecastManager
      * @access public
      * @version 0.0.1
      */
-    public function cast($value, $type = 'string')
+    public function cast($value, string $type = 'string')
     {
         return $this->_typecast($value, $type);
     }
@@ -69,7 +69,7 @@ class TypecastManager
      * @access protected
      * @version 0.0.1
      */
-    private function _typecast($value, $type)
+    private function _typecast($value, string $type)
     {
         switch ($type) {
             case 'string':
@@ -94,7 +94,7 @@ class TypecastManager
                 break;
 
             case 'json':
-                $value = json_decode($value, true);
+                $value = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
                 break;
 
             case 'array':
@@ -103,7 +103,7 @@ class TypecastManager
 
             case 'null':
                 if (is_scalar($value)) {
-                    $value = (is_null($value) || $value === ''  ? null : $value);
+                    $value = ($value === '' ? null : $value);
                 } else if (is_array($value)) {
                     $value = (count($value) === 0 ? null : $value);
                 }
